@@ -10,7 +10,7 @@ cur.execute('''create table if not exists users (
             height text,
             gender text)''')
 
-cur.execute('''create table if not exists exercise(
+cur.execute('''create table if not exists exercise (
             exercise_id text primary key,
             exercise_name text,
             userid text,
@@ -18,7 +18,7 @@ cur.execute('''create table if not exists exercise(
             date text,
             bpm text,
             temperature text,
-            calories text,)''')
+            calories text)''')
 
 conn.commit()
 conn.close()
