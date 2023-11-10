@@ -7,23 +7,27 @@ app.config['DATABASE'] = 'Calorie.db'
 app.secret_key = 'TH15_1S_@_S3CR3T_K3Y'
 
 
-@app.route('/login',methods=("GET","POST"))
+@app.route('/')
+def main():
+    return render_template('index.html')
+
+@app.route('/login.html',methods=("GET","POST"))
 def login():
     if request.method=="POST":
         login_id=request.form['userid']
         passwd = request.form['password']
         login_conn = sqlite3.connect(app.config['DATABASE'])
         cur=login_conn.cursor()
-        cur.execute('SELECT password,code FROM users WHERE username = ? password = ?', (login_id,passwd))
+        cur.execute('SELECT name,age,height,gender FROM users WHERE userid = ? AND password = ?', (login_id,passwd))
         result = cur.fetchone()
         login_conn.close()
         if result:
             print(result)
             session['userid'] = request.form['userid']
-            session['name'] = request.form['name']
-            session['age'] = request.form['age']
-            session['height'] = request.form['height']
-            session['gender'] = request.form['gender']
+            session['name'] = result[0]
+            session['age'] = result[1]
+            session['height'] = result[2]
+            session['gender'] = result[3]
             return redirect(url_for('home'))
         else:
             print("Wrong")
@@ -46,16 +50,19 @@ def register():
         register_cur.execute('SELECT userid FROM users WHERE userid = ?', (user_id,))
         result = register_cur.fetchone()
         if result:
+            register_conn.close()
             return render_template('register.html',message="User already exists")
         else:
-            register_cur.execute('insert into users values(?,?,?,?,?)',(user_id,passwd,name,age,height,gender))
+            register_cur.execute('insert into users values(?,?,?,?,?,?)',(user_id,passwd,name,age,height,gender))
             register_conn.commit()
+            register_conn.close()
             session['userid'] = request.form['userid']
             session['name'] = request.form['name']
             session['age'] = request.form['age']
             session['height'] = request.form['height']
             session['gender'] = request.form['gender']
             return redirect(url_for('home'))
+    return render_template('register.html')
         
 @app.route('/home.html',methods=("GET","POST"))
 def home():
