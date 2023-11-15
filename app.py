@@ -1,14 +1,37 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 import sqlite3
 import os
+from dashboard import fetch_data, create_bar_chart, create_line_chart, create_pie_chart, create_heart_rate_scatter_plot
+import pickle
+from datetime import datetime
 
 app = Flask(__name__)
 app.config['DATABASE'] = 'Calorie.db'
 app.secret_key = 'TH15_1S_@_S3CR3T_K3Y'
 
+def prediction(req):
+    print(req)
+    Gender=int(req['gender'])
+    Age = float(req['age'])
+    Height = float(req['height'])
+    Duration=float(req['duration'])
+    Heart_Rate = float(req['heart_rate'])
+    Body_Temp = float(req['temperature'])
 
-@app.route('/')
+    model=pickle.load(open('final_model.pkl','rb'))
+
+    data=[[Gender,Age,Height,Duration,Heart_Rate,Body_Temp]]
+    print(data)
+    result = model.predict(data)
+    result = round(float(result),2)
+    return result
+
+@app.route('/',methods=("GET","POST"))
 def main():
+    if request.method=="POST":
+        result=prediction(request.form)
+        return render_template('index.html',calories = result)
+        
     return render_template('index.html')
 
 @app.route('/login.html',methods=("GET","POST"))
@@ -67,28 +90,45 @@ def register():
 @app.route('/home.html',methods=("GET","POST"))
 def home():
     if request.method=="POST":
-        gender_text=request.form['gender']
-        Gender = 0 if gender_text=='Male' else 1
-        Age = float(request.form['age'])
-        Height = float(request.form['height'])
-        Duration=float(request.form['duration'])
-        Heart_Rate = float(request.form['heart_rate'])
-        Body_Temp = float(request.form['temperature'])
-        date=os.date.today()
-        model=load_model('model.h5')
-        result = model.predict([[Gender,Age,Height,Duration,Heart_Rate,Body_Temp]])
+        result = prediction(request.form)
         session['calories'] = result
         exercise_conn = sqlite3.connect(app.config['DATABASE'])
         exercise_cur=exercise_conn.cursor()
-        exercise_cur.execute('insert into exercise(exercise_name,userid,duration,date,bpm,temperature,calories) values(?,?,?,?,?,?,?)',(request.form['exercise'],session['userid'],Duration,date,Heart_Rate,Body_Temp,result))
+        exercise_cur.execute('insert into exercise(exercise_name,userid,duration,date,bpm,temperature,calories) values(?,?,?,?,?,?,?)',
+                             (request.form['exercise_name'],
+                              session['userid'],
+                              float(request.form['duration']),
+                              datetime.today().date(),
+                              float(request.form['heart_rate']),
+                              float(request.form['temperature']),
+                              result))
+        exercise_conn.commit()
+        exercise_conn.close()
         return render_template('home.html',calories = result)
         
 
-    return render_template('home.html',name = session['name'], age = session['age'], height = session['height'], gender = session['gender'])
+    return render_template('home.html',name = session['name'], age = session['age'], height = session['height'], gender = 0 if session['gender']=='Male' else 1)
 
 @app.route('/dashboard.html',methods=("GET","POST"))
 def dashboard():
-    pass
+    user_name = session.get('name')
+    userid = session.get('userid')
+    if user_name:
+        exercise_data, time_data, calories_data, heart_data = fetch_data(userid)
+
+        bar_chart = create_bar_chart(exercise_data)
+        line_chart = create_line_chart(time_data)
+        pie_chart = create_pie_chart(calories_data, title='Exercise Distribution and Calories Burned')
+        scatter_plot = create_heart_rate_scatter_plot(heart_data)
+
+
+        return render_template('user_dashboard.html',
+                               username=user_name,
+                               bar_chart=bar_chart,
+                               line_chart=line_chart,
+                               pie_chart=pie_chart,
+                               scatter_plot=scatter_plot
+                            )
 
 
 # Afterwards can just redirect it to the login page directly, or can display a
@@ -99,4 +139,4 @@ def method_name():
     return "HELLO WORLD!"
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True,host='0.0.0.0')
