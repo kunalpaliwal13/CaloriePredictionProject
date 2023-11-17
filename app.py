@@ -74,7 +74,7 @@ def register():
         result = register_cur.fetchone()
         if result:
             register_conn.close()
-            return render_template('register.html',message="User already exists")
+            return render_template('login.html',message="User already exists")
         else:
             register_cur.execute('insert into users values(?,?,?,?,?,?)',(user_id,passwd,name,age,height,gender))
             register_conn.commit()
@@ -85,7 +85,7 @@ def register():
             session['height'] = request.form['height']
             session['gender'] = request.form['gender']
             return redirect(url_for('home'))
-    return render_template('register.html')
+    return render_template('login.html')
         
 @app.route('/home.html',methods=("GET","POST"))
 def home():
