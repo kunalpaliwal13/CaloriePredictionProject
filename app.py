@@ -54,7 +54,8 @@ def login():
             return redirect(url_for('home'))
         else:
             print("Wrong")
-            return render_template('login.html',message="Wrong Id or Password")
+            flash("Wrong Id or Password")
+            return render_template('login.html')
 
     return render_template('login.html')
 
@@ -74,7 +75,8 @@ def register():
         result = register_cur.fetchone()
         if result:
             register_conn.close()
-            return render_template('login.html',message="User already exists")
+            flash("User already exists")
+            return render_template('login.html')
         else:
             register_cur.execute('insert into users values(?,?,?,?,?,?)',(user_id,passwd,name,age,height,gender))
             register_conn.commit()
