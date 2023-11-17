@@ -13,18 +13,6 @@
             <!-- If wanna implement a locking system so when user clicks on register, the register form unlocks:  -->
             <!-- <button class="new-user" type="button" onclick="toggleForm('register')">New User ? Register</button> -->
 
-            <!-- For Flask Flash Messaging System -->
-            {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                <div class="flash-container">
-                    <ul class="flashes">
-                        {% for message in messages %}
-                            <li>{{ message }}</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            {% endif %}
-            {% endwith %}
 
         </div>
         <div id="register-form" class="lr-form">

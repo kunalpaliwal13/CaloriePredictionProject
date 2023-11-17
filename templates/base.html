@@ -6,15 +6,19 @@
   <title>CalPred</title>
   <link rel="stylesheet" href="/static/st.css">
   <style>
-    /* Add this style for Flask flash messages */
+    /* Addded this style for Flask flash messages */
     .flash-container {
       position: fixed;
-      top: 10px;
-      right: 10px;
-      width: 300px; /* Adjust width as needed */
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 300px; 
       padding: 10px;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
       z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     .flashes {
@@ -29,6 +33,7 @@
       background-color: #e40808; /* Adjust background color */
       color: white;
       border-radius: 5px;
+      text-align: center;
     }
   </style>
   {% block styles %}{% endblock %}
@@ -49,6 +54,19 @@
     {% block content %}
     
     {% endblock %}
+
+    <!-- For Flask Flash Messaging System -->
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <div class="flash-container">
+            <ul class="flashes">
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+    {% endwith %}
   
   </body>
 </html>
