@@ -1,2 +1,10 @@
 flask
 db-sqlite3
+plotly
+dash
+pandas
+numpy
+matplotlib
+xgboost
+tpot
+seaborn
