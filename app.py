@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 import sqlite3
 import os
-from dashboard import fetch_data, create_bar_chart, create_line_chart, create_pie_chart, create_heart_rate_scatter_plot
+from dashboard import fetch_data, create_bar_chart, create_line_chart, create_pie_chart, create_heart_rate_scatter_plot, create_heatmap, create_exercise_vs_calories_chart, create_violin_plot, create_temperature_vs_exercise_plot, heart_rate_over_time, heart_rate_track
 import pickle
 from datetime import datetime
 
@@ -116,12 +116,18 @@ def dashboard():
     user_name = session.get('name')
     userid = session.get('userid')
     if user_name:
-        exercise_data, time_data, calories_data, heart_data = fetch_data(userid)
+        exercise_data, time_data, calories_data, heart_data, correlation_matrix, data_with_bpm = fetch_data(userid)
 
         bar_chart = create_bar_chart(exercise_data)
         line_chart = create_line_chart(time_data)
         pie_chart = create_pie_chart(calories_data, title='Exercise Distribution and Calories Burned')
         scatter_plot = create_heart_rate_scatter_plot(heart_data)
+        heatmap_html = create_heatmap(correlation_matrix)
+        exercise_vs_cal =create_exercise_vs_calories_chart(exercise_data)
+        violin_plot = create_violin_plot(data_with_bpm)
+        temp_vs_exercise = create_temperature_vs_exercise_plot(exercise_data)
+        heart_rate_vs_time = heart_rate_over_time(exercise_data)
+        heart_rate_pie = heart_rate_track(exercise_data)
 
 
         return render_template('user_dashboard.html',
@@ -129,7 +135,13 @@ def dashboard():
                                bar_chart=bar_chart,
                                line_chart=line_chart,
                                pie_chart=pie_chart,
-                               scatter_plot=scatter_plot
+                               scatter_plot=scatter_plot,
+                               heatmap=heatmap_html,
+                               ex_vs_cal = exercise_vs_cal,
+                               violin = violin_plot,
+                               temp_exercise= temp_vs_exercise,
+                               heart_vs_time = heart_rate_vs_time,
+                               heart_rate_pie= heart_rate_pie
                             )
 
 
