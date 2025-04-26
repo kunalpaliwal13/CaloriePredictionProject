@@ -2,6 +2,8 @@
 
 Predict calories burned for every workout, log exercise sessions, and explore your fitness data on an interactive dashboard — all powered by Python + Flask, SQLite, and a machine‑learning model.
 
+Deployed: https://caloriepredictionproject.onrender.com/
+
 ---
 
 ## ✨  Key Features
