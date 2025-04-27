@@ -28,6 +28,10 @@ def prediction(req):
 
 @app.route('/',methods=("GET","POST"))
 def main():
+    ua = request.user_agent.string.lower()
+    if "mobile" in ua or "android" in ua or "iphone" in ua:
+        return render_template('mobile_warning.html')
+        
     if request.method=="POST":
         result=prediction(request.form)
         return render_template('index.html',calories = result)
